@@ -26,10 +26,61 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
-app.get("/", async (req, res) => {
-  const dbres = await client.query('select * from categories');
+//get all pastes
+app.get("/paste", async (req, res) => {
+  const dbres = await client.query('select * from pastes');
   res.json(dbres.rows);
 });
+
+//get paste by id
+app.get("/paste/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const getPaste = await client.query(
+    "SELECT * FROM pastes WHERE paste_id = $1",
+    [id]
+    );
+  const rows = getPaste.rows
+  if (getPaste) {
+    res.status(200).json({
+      status: "success",
+      data: {
+        getPaste: rows, //only returns rows from data enabled by const rows
+      },
+    });
+  } else {
+    res.status(404).json({
+      status: "fail",
+      data: {
+        id: "Could not find a paste with that id identifier",
+      },
+    });
+  }
+});
+
+//create paste
+app.post("/paste", async (req,res) => {
+  const { title, content } = req.body;
+  if (typeof content === "string") {
+    const createPaste = await client.query(
+      "INSERT INTO pastes (title, content) VALUES ($1,$2) RETURNING *",
+      [title, content])
+    res.status(201).json({
+      status: "success",
+      data: {
+        pastes: createPaste,
+      }
+    });
+  }
+  else {
+    res.status(400).json({
+      status: "fail",
+      data: {
+        pasteText: "A string value for paste text is required in your JSON body"
+      }
+    })
+  }
+})
 
 
 //Start the server on the given port
