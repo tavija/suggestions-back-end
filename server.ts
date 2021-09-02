@@ -27,7 +27,7 @@ const client = new Client(dbConfig);
 client.connect();
 
 //get all pastes
-app.get("/paste", async (req, res) => {
+app.get("/pastes", async (req, res) => {
   const dbres = await client.query('select * from pastes');
   res.json(dbres.rows);
 });
