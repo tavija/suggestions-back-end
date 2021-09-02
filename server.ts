@@ -26,49 +26,49 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
-//get all pastes
-app.get("/pastes", async (req, res) => {
-  const dbres = await client.query('select * from pastes');
+//get all suggestions
+app.get("/suggestions", async (req, res) => {
+  const dbres = await client.query('select * from suggestions');
   res.json(dbres.rows);
 });
 
-//get paste by id
-app.get("/paste/:id", async (req, res) => {
+//get suggestion by id
+app.get("/suggestion/:id", async (req, res) => {
   const id = parseInt(req.params.id);
 
-  const getPaste = await client.query(
-    "SELECT * FROM pastes WHERE paste_id = $1",
+  const getSuggestion = await client.query(
+    "SELECT * FROM suggestions WHERE suggestion_id = $1",
     [id]
     );
-  const rows = getPaste.rows
-  if (getPaste) {
+  const rows = getSuggestion.rows
+  if (getSuggestion) {
     res.status(200).json({
       status: "success",
       data: {
-        getPaste: rows, //only returns rows from data enabled by const rows
+        getSuggestion: rows, //only returns rows from data enabled by const rows
       },
     });
   } else {
     res.status(404).json({
       status: "fail",
       data: {
-        id: "Could not find a paste with that id identifier",
+        id: "Could not find a suggestion with that id identifier",
       },
     });
   }
 });
 
-//create paste
-app.post("/paste", async (req,res) => {
-  const { title, content } = req.body;
+//create suggestion
+app.post("/suggestion", async (req,res) => {
+  const { title, content, name } = req.body;
   if (typeof content === "string") {
-    const createPaste = await client.query(
-      "INSERT INTO pastes (title, content) VALUES ($1,$2) RETURNING *",
-      [title, content])
+    const createSuggestion = await client.query(
+      "INSERT INTO suggestions (title, content, name) VALUES ($1,$2, $3) RETURNING *",
+      [title, content, name])
     res.status(201).json({
       status: "success",
       data: {
-        pastes: createPaste,
+        suggestions: createSuggestion,
       }
     });
   }
@@ -76,7 +76,7 @@ app.post("/paste", async (req,res) => {
     res.status(400).json({
       status: "fail",
       data: {
-        pasteText: "A string value for paste text is required in your JSON body"
+        content: "A string value for suggestion text is required in your JSON body"
       }
     })
   }
