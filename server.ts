@@ -26,6 +26,8 @@ app.use(cors()) //add CORS support to each following route handler
 const client = new Client(dbConfig);
 client.connect();
 
+// SUGGESTIONS
+
 //get all suggestions
 app.get("/suggestions", async (req, res) => {
   const dbres = await client.query('select * from suggestions');
@@ -39,7 +41,7 @@ app.get("/suggestion/:id", async (req, res) => {
   const getSuggestion = await client.query(
     "SELECT * FROM suggestions WHERE suggestion_id = $1",
     [id]
-    );
+  );
   const rows = getSuggestion.rows
   if (getSuggestion) {
     res.status(200).json({
@@ -59,7 +61,7 @@ app.get("/suggestion/:id", async (req, res) => {
 });
 
 //create suggestion
-app.post("/suggestion", async (req,res) => {
+app.post("/suggestion", async (req, res) => {
   const { title, content, name } = req.body;
   if (typeof content === "string") {
     const createSuggestion = await client.query(
@@ -82,6 +84,56 @@ app.post("/suggestion", async (req,res) => {
   }
 })
 
+//VOTES
+
+//get total of votes by suggestion id
+app.get("/votes/:suggestion_id", async (req, res) => {
+  const id = parseInt(req.params.suggestion_id);
+
+  const getVotesForSuggestion = await client.query(
+    "SELECT count(*) AS total_votes FROM votes WHERE suggestion_id = $1",
+    [id]
+  );
+  const rows = getVotesForSuggestion.rows
+  if (getVotesForSuggestion) {
+    res.status(200).json({
+      status: "success",
+      data: {
+        getVotesForSuggestion: rows, //only returns rows from data enabled by const rows
+      },
+    });
+  } else {
+    res.status(404).json({
+      status: "fail",
+      data: {
+        id: "Could not find any votes for that suggestion id identifier",
+      },
+    });
+  }
+});
+
+//create vote
+app.post("/vote", async (req, res) => {
+  const { suggestion_id, username} = req.body;
+  if (typeof suggestion_id === "number") {
+    const createVote = await client.query(
+      "INSERT INTO votes (suggestion_id, username, vote) VALUES ($1, $2, 1) RETURNING *",
+      [suggestion_id, username])
+    res.status(201).json({
+      status: "success",
+      data: {
+        suggestions: createVote,
+      }
+    });
+  } else {
+    res.status(400).json({
+      status: "fail",
+      data: {
+        content: "A number value for suggestion_id is required in your JSON body"
+      }
+    })
+  }
+})
 
 //Start the server on the given port
 const port = process.env.PORT;
