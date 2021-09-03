@@ -114,7 +114,7 @@ app.get("/votes/:suggestion_id", async (req, res) => {
 
 //create vote
 app.post("/vote", async (req, res) => {
-  const { suggestion_id, username} = req.body;
+  const { suggestion_id, username } = req.body;
   if (typeof suggestion_id === "number") {
     const createVote = await client.query(
       "INSERT INTO votes (suggestion_id, username, vote) VALUES ($1, $2, 1) RETURNING *",
