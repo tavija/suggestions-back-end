@@ -35,8 +35,8 @@ app.get("/suggestions", async (req, res) => {
 });
 
 //get suggestion by id
-app.get("/suggestion/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
+app.get("/suggestion/:suggestion_id", async (req, res) => {
+  const id = parseInt(req.params.suggestion_id);
 
   const getSuggestion = await client.query(
     "SELECT * FROM suggestions WHERE suggestion_id = $1",
@@ -83,6 +83,28 @@ app.post("/suggestion", async (req, res) => {
     })
   }
 })
+
+//delete suggestion (for admin)
+app.delete("/suggestion/:suggestion_id", async (req, res) => {
+  const id = parseInt(req.params.suggestion_id);
+  
+  //DELETE will also delete any votes associated with suggestion_id because of ON DELETE CASCADE constain
+  const queryResult = await client.query("DELETE FROM suggestions WHERE suggestion_id=$1", [id]);
+  const didRemove = queryResult.rowCount === 1;
+
+  if (didRemove) {
+    res.status(200).json({
+      status: "success",
+    });
+  } else {
+    res.status(404).json({
+      status: "fail",
+      data: {
+        id: "Could not find a suggestion with that id identifier",
+      },
+    });
+  }
+});
 
 //VOTES
 

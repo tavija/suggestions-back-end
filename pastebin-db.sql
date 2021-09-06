@@ -20,3 +20,14 @@ CREATE TABLE votes (
 
 -- return a number of total votes for particular suggestion_id
 "SELECT *, count(*) AS total_votes FROM votes WHERE suggestion_id = $1"
+
+-- delete a suggestion with particular suggestion_id
+"DELETE FROM suggestions WHERE suggestion_id = $1"
+
+-- alter votes to include ON DELETE CASCADE for deleting any rows for suggestion_id if suggestion is deleted from suggestions table
+ALTER TABLE votes
+DROP CONSTRAINT fk_suggestions,
+ADD CONSTRAINT fk_suggestions
+  FOREIGN KEY (suggestion_id)
+  REFERENCES suggestions(suggestion_id)
+  ON DELETE CASCADE;
