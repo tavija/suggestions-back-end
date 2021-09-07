@@ -88,7 +88,7 @@ app.post("/suggestion", async (req, res) => {
 app.delete("/suggestion/:suggestion_id", async (req, res) => {
   const id = parseInt(req.params.suggestion_id);
   
-  //DELETE will also delete any votes associated with suggestion_id because of ON DELETE CASCADE constain
+  //DELETE will also delete any votes associated with suggestion_id because of ON DELETE CASCADE constraint
   const queryResult = await client.query("DELETE FROM suggestions WHERE suggestion_id=$1", [id]);
   const didRemove = queryResult.rowCount === 1;
 
