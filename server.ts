@@ -30,7 +30,7 @@ client.connect();
 
 //get all suggestions
 app.get("/suggestions", async (req, res) => {
-  const dbres = await client.query('select * from suggestions');
+  const dbres = await client.query('SELECT * from suggestions ORDER BY suggestion_id DESC');
   res.json(dbres.rows);
 });
 
