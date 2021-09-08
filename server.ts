@@ -3,14 +3,8 @@ import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
 
-config(); //Read .env file lines as though they were env vars.
+config(); 
 
-//Call this script with the environment variable LOCAL set if you want to connect to a local db (i.e. without SSL)
-//Do not set the environment variable LOCAL if you want to connect to a heroku DB.
-
-//For the ssl property of the DB connection config, use a value of...
-// false - when connecting to a local DB
-// { rejectUnauthorized: false } - when connecting to a heroku DB
 const herokuSSLSetting = { rejectUnauthorized: false }
 const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
 const dbConfig = {
@@ -34,7 +28,7 @@ app.get("/suggestions", async (req, res) => {
   res.json(dbres.rows);
 });
 
-//get suggestion by id
+//get suggestion by id // created for testing purposes
 app.get("/suggestion/:suggestion_id", async (req, res) => {
   const id = parseInt(req.params.suggestion_id);
 
@@ -47,7 +41,7 @@ app.get("/suggestion/:suggestion_id", async (req, res) => {
     res.status(200).json({
       status: "success",
       data: {
-        getSuggestion: rows, //only returns rows from data enabled by const rows
+        getSuggestion: rows,
       },
     });
   } else {
@@ -60,10 +54,16 @@ app.get("/suggestion/:suggestion_id", async (req, res) => {
   }
 });
 
+
+
+
+
+
+
 //create suggestion
 app.post("/suggestion", async (req, res) => {
   const { title, content, name } = req.body;
-  if (typeof content === "string") {
+  if (typeof title === "string" && typeof content === "string" && typeof name === "string") {
     const createSuggestion = await client.query(
       "INSERT INTO suggestions (title, content, name) VALUES ($1,$2, $3) RETURNING *",
       [title, content, name])
@@ -83,6 +83,14 @@ app.post("/suggestion", async (req, res) => {
     })
   }
 })
+
+
+
+
+
+
+
+
 
 //delete suggestion (for admin)
 app.delete("/suggestion/:suggestion_id", async (req, res) => {
