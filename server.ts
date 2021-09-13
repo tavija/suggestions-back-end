@@ -63,7 +63,7 @@ app.get("/suggestion/:suggestion_id", async (req, res) => {
 //create suggestion
 app.post("/suggestion", async (req, res) => {
   const { title, content, name } = req.body;
-  if (typeof title === "string" && typeof content === "string" && typeof name === "string") {
+  if ([title, content, name].every(element => typeof element === "string")) {
     const createSuggestion = await client.query(
       "INSERT INTO suggestions (title, content, name) VALUES ($1,$2, $3) RETURNING *",
       [title, content, name])
@@ -145,7 +145,7 @@ app.get("/votes/:suggestion_id", async (req, res) => {
 //create vote
 app.post("/vote", async (req, res) => {
   const { suggestion_id, username } = req.body;
-  if (typeof suggestion_id === "number") {
+  if (typeof suggestion_id === "number" && typeof username === "string") {
     const createVote = await client.query(
       "INSERT INTO votes (suggestion_id, username, vote) VALUES ($1, $2, 1) RETURNING *",
       [suggestion_id, username])
